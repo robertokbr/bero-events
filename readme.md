@@ -1,5 +1,3 @@
-# 
-
 ## 🏃‍♂ How to run
 ```bash
 # download packages
