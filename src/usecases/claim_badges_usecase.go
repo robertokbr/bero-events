@@ -5,7 +5,7 @@ import (
 	badgeUsecases "github.com/robertokbr/bero-events/src/usecases/badges"
 )
 
-type BadgesUsecase struct {
+type ClaimBadgesUsecase struct {
 	claimCollectorAchievement            *badgeUsecases.ClaimCollectorAchievement
 	claimFirstHundredOfUsersAchievement  *badgeUsecases.ClaimFirstHundredOfUsersAchievement
 	claimFirstThousandOfUsersAchievement *badgeUsecases.ClaimFirstThousandOfUsersAchievement
@@ -14,8 +14,8 @@ type BadgesUsecase struct {
 	claimQuickTriggerAchievement         *badgeUsecases.ClaimQuickTriggerAchievement
 }
 
-func NewBadgesUsecase(repository *repositories.MySqlRepository) *BadgesUsecase {
-	return &BadgesUsecase{
+func NewClaimBadgesUsecase(repository *repositories.MySqlRepository) *ClaimBadgesUsecase {
+	return &ClaimBadgesUsecase{
 		claimCollectorAchievement:            badgeUsecases.NewClaimCollectorAchievement(repository),
 		claimFirstHundredOfUsersAchievement:  badgeUsecases.NewClaimFirstHundredOfUsersAchievement(repository),
 		claimFirstThousandOfUsersAchievement: badgeUsecases.NewClaimFirstThousandOfUsersAchievement(repository),
@@ -25,7 +25,7 @@ func NewBadgesUsecase(repository *repositories.MySqlRepository) *BadgesUsecase {
 	}
 }
 
-func (self *BadgesUsecase) Execute(userID int64) {
+func (self *ClaimBadgesUsecase) Execute(userID int64) {
 	go self.claimCollectorAchievement.Execute(userID)
 	go self.claimFirstHundredOfUsersAchievement.Execute(userID)
 	go self.claimFirstThousandOfUsersAchievement.Execute(userID)
