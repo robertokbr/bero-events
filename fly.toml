@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for bero-achievement on 2023-10-28T22:07:28-03:00
+# fly.toml app configuration file generated for bero-events-worker on 2023-10-30T02:46:31-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "bero-achievement"
+app = "bero-events-worker"
 primary_region = "gru"
 
 [build]
