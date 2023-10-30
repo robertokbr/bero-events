@@ -1,6 +1,8 @@
 package badge_usecases
 
 import (
+	"sync"
+
 	"github.com/robertokbr/bero-events/src/domain/enums"
 	"github.com/robertokbr/bero-events/src/infra/database/repositories"
 	"github.com/robertokbr/bero-events/src/logger"
@@ -8,16 +10,20 @@ import (
 
 type ClaimCollectorAchievement struct {
 	repository *repositories.MySqlRepository
+	mutex      *sync.Mutex
 }
 
 func NewClaimCollectorAchievement(repository *repositories.MySqlRepository) *ClaimCollectorAchievement {
 	return &ClaimCollectorAchievement{
 		repository: repository,
+		mutex:      &sync.Mutex{},
 	}
 }
 
 func (self *ClaimCollectorAchievement) Execute(userID int64) error {
+	self.mutex.Lock()
 	amountOfPureLoots, err := self.repository.GetUserAmountOfPureLootsByUserID(userID)
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting amount of pure loots for user %d: %s", userID, err.Error())
@@ -25,10 +31,9 @@ func (self *ClaimCollectorAchievement) Execute(userID int64) error {
 	}
 
 	if amountOfPureLoots == 10 {
-		userAchievements, err := self.repository.GetUserAchievementsByUserAndAchievementID(
-			userID,
-			int64(enums.USER_COLLECTED_10_PURE_LOOTS),
-		)
+		self.mutex.Lock()
+		userAchievements, err := self.repository.GetUserAchievementsByUserAndAchievementID(userID, int64(enums.USER_COLLECTED_10_PURE_LOOTS))
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while getting user %d achievement %d: %s", userID, enums.USER_COLLECTED_10_PURE_LOOTS, err.Error())
@@ -40,7 +45,9 @@ func (self *ClaimCollectorAchievement) Execute(userID int64) error {
 			return nil
 		}
 
+		self.mutex.Lock()
 		err = self.repository.CreateUserAchievement(userID, int64(enums.USER_COLLECTED_10_PURE_LOOTS))
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while creating user %d achievement %d: %s", userID, enums.USER_COLLECTED_10_PURE_LOOTS, err.Error())

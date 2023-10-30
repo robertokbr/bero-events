@@ -1,6 +1,8 @@
 package badge_usecases
 
 import (
+	"sync"
+
 	"github.com/robertokbr/bero-events/src/domain/enums"
 	"github.com/robertokbr/bero-events/src/infra/database/repositories"
 	"github.com/robertokbr/bero-events/src/logger"
@@ -8,16 +10,20 @@ import (
 
 type ClaimFirstThousandOfUsersAchievement struct {
 	repository *repositories.MySqlRepository
+	mutex      *sync.Mutex
 }
 
 func NewClaimFirstThousandOfUsersAchievement(repository *repositories.MySqlRepository) *ClaimFirstThousandOfUsersAchievement {
 	return &ClaimFirstThousandOfUsersAchievement{
 		repository: repository,
+		mutex:      &sync.Mutex{},
 	}
 }
 
 func (self *ClaimFirstThousandOfUsersAchievement) Execute(userID int64) error {
+	self.mutex.Lock()
 	amountOfFirstHundredAchievementClaims, err := self.repository.GetAmountOfAchievementClaimsByAchievementID(int64(enums.FIRST_HUNDRED_OF_USERS))
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting amount of achievement claims for achievement %d: %s", enums.FIRST_HUNDRED_OF_USERS, err.Error())
@@ -28,7 +34,9 @@ func (self *ClaimFirstThousandOfUsersAchievement) Execute(userID int64) error {
 		return nil
 	}
 
+	self.mutex.Lock()
 	amountOfFirstThousandAchievementClaims, err := self.repository.GetAmountOfAchievementClaimsByAchievementID(int64(enums.FIRST_THOUSAND_OF_USERS))
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting amount of achievement claims for achievement %d: %s", enums.FIRST_THOUSAND_OF_USERS, err.Error())
@@ -39,10 +47,9 @@ func (self *ClaimFirstThousandOfUsersAchievement) Execute(userID int64) error {
 		return nil
 	}
 
-	userAchievements, err := self.repository.GetUserAchievementsByUserAndAchievementID(
-		userID,
-		int64(enums.FIRST_THOUSAND_OF_USERS),
-	)
+	self.mutex.Lock()
+	userAchievements, err := self.repository.GetUserAchievementsByUserAndAchievementID(userID, int64(enums.FIRST_THOUSAND_OF_USERS))
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting user %d achievement %d: %s", userID, enums.FIRST_THOUSAND_OF_USERS, err.Error())
@@ -54,7 +61,9 @@ func (self *ClaimFirstThousandOfUsersAchievement) Execute(userID int64) error {
 		return nil
 	}
 
+	self.mutex.Lock()
 	err = self.repository.CreateUserAchievement(userID, int64(enums.FIRST_THOUSAND_OF_USERS))
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while creating user %d achievement %d: %s", userID, enums.FIRST_THOUSAND_OF_USERS, err.Error())

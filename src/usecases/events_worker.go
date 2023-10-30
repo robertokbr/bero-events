@@ -10,10 +10,10 @@ func EventsWorker(jobs <-chan *dtos.EventDTO, jobsReturn chan JobsReturn, claimB
 	for job := range jobs {
 		switch job.Event {
 		case dtos.LOOT_COLLECTED:
-			claimBadgesUsecase.Execute(job.UserID)
+			go claimBadgesUsecase.Execute(job.UserID)
 			break
 		case dtos.REWARD_COLLECTED:
-			claimRewardsUsecase.Execute(job.UserID)
+			go claimRewardsUsecase.Execute(job.UserID)
 			break
 		default:
 			fmt.Printf("User %d did something", *&job.UserID)

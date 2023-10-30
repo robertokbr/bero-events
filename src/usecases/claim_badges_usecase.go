@@ -26,10 +26,10 @@ func NewClaimBadgesUsecase(repository *repositories.MySqlRepository) *ClaimBadge
 }
 
 func (self *ClaimBadgesUsecase) Execute(userID int64) {
-	go self.claimCollectorAchievement.Execute(userID)
-	go self.claimFirstHundredOfUsersAchievement.Execute(userID)
-	go self.claimFirstThousandOfUsersAchievement.Execute(userID)
-	go self.claimInfluencerAchievement.Execute(userID)
-	go self.claimPopularAchievement.Execute(userID)
-	go self.claimQuickTriggerAchievement.Execute(userID)
+	self.claimCollectorAchievement.Execute(userID)
+	self.claimFirstHundredOfUsersAchievement.Execute(userID)
+	self.claimFirstThousandOfUsersAchievement.Execute(userID)
+	self.claimInfluencerAchievement.Execute(userID)
+	self.claimPopularAchievement.Execute(userID)
+	self.claimQuickTriggerAchievement.Execute(userID)
 }

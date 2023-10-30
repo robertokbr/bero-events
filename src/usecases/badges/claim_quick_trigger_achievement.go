@@ -1,6 +1,8 @@
 package badge_usecases
 
 import (
+	"sync"
+
 	"github.com/robertokbr/bero-events/src/domain/enums"
 	"github.com/robertokbr/bero-events/src/infra/database/repositories"
 	"github.com/robertokbr/bero-events/src/logger"
@@ -8,16 +10,20 @@ import (
 
 type ClaimQuickTriggerAchievement struct {
 	repository *repositories.MySqlRepository
+	mutex      *sync.Mutex
 }
 
 func NewClaimQuickTriggerAchievement(repository *repositories.MySqlRepository) *ClaimQuickTriggerAchievement {
 	return &ClaimQuickTriggerAchievement{
 		repository: repository,
+		mutex:      &sync.Mutex{},
 	}
 }
 
 func (self *ClaimQuickTriggerAchievement) Execute(userID int64) error {
+	self.mutex.Lock()
 	amountOfPureGems, err := self.repository.GetUserAmountOfPureGemsByUserID(userID)
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting amount of pure gems for user %d: %s", userID, err.Error())
@@ -25,10 +31,9 @@ func (self *ClaimQuickTriggerAchievement) Execute(userID int64) error {
 	}
 
 	if amountOfPureGems == 1 {
-		userAchievements, err := self.repository.GetUserAchievementsByUserAndAchievementID(
-			userID,
-			int64(enums.FIRST_COLLECTED_PURE_GEM),
-		)
+		self.mutex.Lock()
+		userAchievements, err := self.repository.GetUserAchievementsByUserAndAchievementID(userID, int64(enums.FIRST_COLLECTED_PURE_GEM))
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while getting user %d achievement %d: %s", userID, enums.FIRST_COLLECTED_PURE_GEM, err.Error())
@@ -40,7 +45,9 @@ func (self *ClaimQuickTriggerAchievement) Execute(userID int64) error {
 			return nil
 		}
 
+		self.mutex.Lock()
 		err = self.repository.CreateUserAchievement(userID, int64(enums.FIRST_COLLECTED_PURE_GEM))
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while creating user %d achievement %d: %s", userID, enums.FIRST_COLLECTED_PURE_GEM, err.Error())

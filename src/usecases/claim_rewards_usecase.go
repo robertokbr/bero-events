@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/robertokbr/bero-events/src/domain/interfaces"
 	"github.com/robertokbr/bero-events/src/domain/models"
@@ -12,24 +13,30 @@ import (
 type ClaimRewardsUsecase struct {
 	repository   *repositories.MySqlRepository
 	mailProvider interfaces.MailProvider
+	mutex        *sync.Mutex
 }
 
 func NewClaimRewardsUsecase(repository *repositories.MySqlRepository, mailProvider interfaces.MailProvider) *ClaimRewardsUsecase {
 	return &ClaimRewardsUsecase{
 		repository:   repository,
 		mailProvider: mailProvider,
+		mutex:        &sync.Mutex{},
 	}
 }
 
 func (self *ClaimRewardsUsecase) Execute(userID int64) error {
+	self.mutex.Lock()
 	user, err := self.repository.GetUserByID(userID)
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting user %d: %s", userID, err.Error())
 		return err
 	}
 
+	self.mutex.Lock()
 	rewardIDs, err := self.repository.GetUserRewardIDsNotClaimedByUserID(userID)
+	self.mutex.Unlock()
 
 	if err != nil {
 		logger.Errorf("Error while getting amount of achievement claims for user %d: %s", userID, err.Error())
@@ -41,7 +48,9 @@ func (self *ClaimRewardsUsecase) Execute(userID int64) error {
 	}
 
 	for _, rewardID := range rewardIDs {
+		self.mutex.Lock()
 		giftCard, err := self.repository.GetGiftCardByRewardID(rewardID)
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while getting gift card for reward %d: %s", rewardID, err.Error())
@@ -54,7 +63,9 @@ func (self *ClaimRewardsUsecase) Execute(userID int64) error {
 
 		giftCard.IsUsed = true
 
+		self.mutex.Lock()
 		self.repository.UpdateGiftCard(&giftCard)
+		self.mutex.Unlock()
 
 		userRewardPurchase := models.UserRewardPurchase{
 			UserID:      userID,
@@ -62,7 +73,9 @@ func (self *ClaimRewardsUsecase) Execute(userID int64) error {
 			IsDelivered: true,
 		}
 
+		self.mutex.Lock()
 		err = self.repository.UpdateUserRewardPurchase(&userRewardPurchase)
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while updating user reward purchase %d: %s", userRewardPurchase.ID, err.Error())
