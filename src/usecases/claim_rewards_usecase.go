@@ -61,19 +61,10 @@ func (self *ClaimRewardsUsecase) Execute(userID int64) error {
 			return nil
 		}
 
+		self.mutex.Lock()
 		giftCard.IsUsed = true
-
-		self.mutex.Lock()
 		self.repository.UpdateGiftCard(&giftCard)
-		self.mutex.Unlock()
-
-		userRewardPurchase := models.UserRewardPurchase{
-			UserID:      userID,
-			RewardID:    rewardID,
-			IsDelivered: true,
-		}
-
-		self.mutex.Lock()
+		userRewardPurchase := models.UserRewardPurchase{UserID: userID, RewardID: rewardID, IsDelivered: true}
 		err = self.repository.UpdateUserRewardPurchase(&userRewardPurchase)
 		self.mutex.Unlock()
 
@@ -87,16 +78,13 @@ func (self *ClaimRewardsUsecase) Execute(userID int64) error {
 			<img src="https://bero-bucket.s3.amazonaws.com/bero-money.png" />
 			<p>Passando pra te entregar seu gift card! Espero que aproveite bastante :)</p>
 			<p>Não esqueça de compartilhar no server pra todo mundo ver que você arrasa o/</p>
-			<strong>- Código: %s</strong>
+			<strong>#Código: %s</strong>
 		`
 
+		self.mutex.Lock()
 		formattedEmailBody := fmt.Sprintf(emailBody, user.Name, giftCard.Code)
-
-		err = self.mailProvider.Send(
-			user.Email,
-			"Plataforma do Bero - Gift Card",
-			formattedEmailBody,
-		)
+		err = self.mailProvider.Send(user.Email, "Plataforma do Bero - Gift Card", formattedEmailBody)
+		self.mutex.Unlock()
 
 		if err != nil {
 			logger.Errorf("Error while sending email to user %d: %s", user.ID, err.Error())
