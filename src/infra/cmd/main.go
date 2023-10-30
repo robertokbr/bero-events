@@ -9,6 +9,7 @@ import (
 	"github.com/robertokbr/bero-events/src/infra/controllers"
 	"github.com/robertokbr/bero-events/src/infra/database"
 	"github.com/robertokbr/bero-events/src/infra/database/repositories"
+	"github.com/robertokbr/bero-events/src/infra/middlewares"
 	"github.com/robertokbr/bero-events/src/infra/providers"
 	"github.com/robertokbr/bero-events/src/usecases"
 )
@@ -35,7 +36,7 @@ func main() {
 	mux.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			eventsController.Add(w, r)
+			middlewares.RequestAuth(w, r, eventsController.Add)
 			break
 		default:
 			w.WriteHeader(http.StatusNotFound)
