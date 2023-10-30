@@ -147,3 +147,75 @@ func (self *MySqlRepository) CreateUserAchievement(userID, achievementID int64) 
 
 	return nil
 }
+
+func (self *MySqlRepository) GetUserRewardIDsNotClaimedByUserID(userID int64) ([]int64, error) {
+	IDs := make([]int64, 0)
+
+	const query = `
+		SELECT urp.rewardId FROM UsersRewardPurchases urp 
+		WHERE urp.userId = ?
+		AND urp.isDelivered = false
+	`
+	tx := self.db.DB.Raw(query, userID).Pluck("rewardId", &IDs)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return IDs, nil
+}
+
+func (self *MySqlRepository) GetGiftCardByRewardID(giftCardID int64) (models.GiftCard, error) {
+	giftCard := models.GiftCard{}
+
+	const query = `
+		SELECT gc.code, gc.id FROM rewards_gift_cards rgc 
+		JOIN gift_cards gc ON gc.id = rgc.id 
+		WHERE rgc.reward_id = ?
+		AND gc.is_used = FALSE
+	`
+
+	tx := self.db.DB.Raw(query, giftCardID).Scan(&giftCard)
+
+	if tx.Error != nil {
+		return models.GiftCard{}, tx.Error
+	}
+
+	return giftCard, nil
+}
+
+func (self *MySqlRepository) UpdateGiftCard(giftCard *models.GiftCard) error {
+	tx := self.db.DB.Table("gift_cards").Where("id = ?", giftCard.ID).Updates(&giftCard)
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (self *MySqlRepository) UpdateUserRewardPurchase(userRewardPurchase *models.UserRewardPurchase) error {
+	tx := self.db.DB.Table("UsersRewardPurchases").Where(
+		"rewardId = ? AND userId = ?",
+		userRewardPurchase.RewardID,
+		userRewardPurchase.UserID,
+	).Updates(&userRewardPurchase)
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (self *MySqlRepository) GetUserByID(userID int64) (models.User, error) {
+	user := models.User{}
+
+	tx := self.db.DB.Table("Users").Where("id = ?", userID).Scan(&user)
+
+	if tx.Error != nil {
+		return models.User{}, tx.Error
+	}
+
+	return user, nil
+}

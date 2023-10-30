@@ -7,19 +7,19 @@ import (
 	"github.com/robertokbr/bero-events/src/domain/dtos"
 )
 
-type AchievementsController struct {
-	jobs chan *dtos.CheckAchievementsDTO
+type EventsController struct {
+	jobs chan *dtos.EventDTO
 }
 
-func NewAchievementsController(jobs chan *dtos.CheckAchievementsDTO) *AchievementsController {
-	return &AchievementsController{
+func NewEventsController(jobs chan *dtos.EventDTO) *EventsController {
+	return &EventsController{
 		jobs: jobs,
 	}
 }
 
-func (self *AchievementsController) CheckAchievements(w http.ResponseWriter, r *http.Request) {
+func (self *EventsController) Add(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	data := dtos.CheckAchievementsDTO{}
+	data := dtos.EventDTO{}
 	json.NewDecoder(r.Body).Decode(&data)
 
 	self.jobs <- &data

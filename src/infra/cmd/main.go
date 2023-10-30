@@ -9,6 +9,7 @@ import (
 	"github.com/robertokbr/bero-events/src/infra/controllers"
 	"github.com/robertokbr/bero-events/src/infra/database"
 	"github.com/robertokbr/bero-events/src/infra/database/repositories"
+	"github.com/robertokbr/bero-events/src/infra/providers"
 	"github.com/robertokbr/bero-events/src/usecases"
 )
 
@@ -20,20 +21,21 @@ func main() {
 	mux := http.NewServeMux()
 	connection := database.NewMysqlDB()
 	repository := repositories.NewMySqlRepository(connection)
-	achievementJobs := make(chan *dtos.CheckAchievementsDTO, 100)
-	achievementsController := controllers.NewAchievementsController(achievementJobs)
-	achievementWorkerManager := usecases.NewAchievementsWorkerManager(achievementJobs, repository)
+	mailProvider := &providers.SesMailProvider{}
+	jobs := make(chan *dtos.EventDTO, 100)
+	eventsWorkerManager := usecases.NewEventsWorkerManager(jobs, repository, mailProvider)
+	eventsController := controllers.NewEventsController(jobs)
 
-	go achievementWorkerManager.Start(7)
+	go eventsWorkerManager.Start(7)
 
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
 
-	mux.HandleFunc("/check-achievements", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			achievementsController.CheckAchievements(w, r)
+			eventsController.Add(w, r)
 			break
 		default:
 			w.WriteHeader(http.StatusNotFound)
