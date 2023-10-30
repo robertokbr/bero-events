@@ -1,1 +1,0 @@
-curl http://localhost:8080/check-achievements -X POST -H "Content-Type: application/json" -d '{"userId": 23, "event": "loot_collected"}'
