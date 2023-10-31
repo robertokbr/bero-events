@@ -22,6 +22,19 @@ func NewClaimFirstThousandOfUsersAchievement(repository *repositories.MySqlRepos
 
 func (self *ClaimFirstThousandOfUsersAchievement) Execute(userID int64) error {
 	self.mutex.Lock()
+	amountOfPureLoots, err := self.repository.GetUserAmountOfPureLootsByUserID(userID)
+	self.mutex.Unlock()
+
+	if err != nil {
+		logger.Errorf("Error while getting user %d amount of pure loots: %s", userID, err.Error())
+		return err
+	}
+
+	if amountOfPureLoots > 1 {
+		return nil
+	}
+
+	self.mutex.Lock()
 	amountOfFirstHundredAchievementClaims, err := self.repository.GetAmountOfAchievementClaimsByAchievementID(int64(enums.FIRST_HUNDRED_OF_USERS))
 	self.mutex.Unlock()
 
@@ -30,7 +43,7 @@ func (self *ClaimFirstThousandOfUsersAchievement) Execute(userID int64) error {
 		return err
 	}
 
-	if amountOfFirstHundredAchievementClaims < 101 {
+	if amountOfFirstHundredAchievementClaims < 101 || amountOfFirstHundredAchievementClaims > 1001 {
 		return nil
 	}
 
