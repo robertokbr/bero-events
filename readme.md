@@ -1,3 +1,6 @@
+# Events-Worker
+<img src="./github/flow.png" width="100%">
+
 ## 🏃‍♂ How to run
 ```bash
 # download packages
