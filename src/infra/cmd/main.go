@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/joho/godotenv"
-	"github.com/robertokbr/bero-events/src/domain/dtos"
-	"github.com/robertokbr/bero-events/src/infra/controllers"
-	"github.com/robertokbr/bero-events/src/infra/database"
-	"github.com/robertokbr/bero-events/src/infra/database/repositories"
-	"github.com/robertokbr/bero-events/src/infra/middlewares"
-	"github.com/robertokbr/bero-events/src/infra/providers"
-	"github.com/robertokbr/bero-events/src/usecases"
+	"github.com/robertokbr/events-worker/src/domain/dtos"
+	"github.com/robertokbr/events-worker/src/infra/controllers"
+	"github.com/robertokbr/events-worker/src/infra/database"
+	"github.com/robertokbr/events-worker/src/infra/database/repositories"
+	"github.com/robertokbr/events-worker/src/infra/middlewares"
+	"github.com/robertokbr/events-worker/src/infra/providers"
+	"github.com/robertokbr/events-worker/src/usecases"
 )
 
 func init() {

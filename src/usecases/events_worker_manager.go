@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"github.com/robertokbr/bero-events/src/domain/dtos"
-	"github.com/robertokbr/bero-events/src/domain/interfaces"
-	"github.com/robertokbr/bero-events/src/infra/database/repositories"
+	"github.com/robertokbr/events-worker/src/domain/dtos"
+	"github.com/robertokbr/events-worker/src/domain/interfaces"
+	"github.com/robertokbr/events-worker/src/infra/database/repositories"
 )
 
 type JobsReturn struct {

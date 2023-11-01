@@ -1,8 +1,8 @@
 package usecases
 
 import (
-	"github.com/robertokbr/bero-events/src/infra/database/repositories"
-	badgeUsecases "github.com/robertokbr/bero-events/src/usecases/badges"
+	"github.com/robertokbr/events-worker/src/infra/database/repositories"
+	badgeUsecases "github.com/robertokbr/events-worker/src/usecases/badges"
 )
 
 type ClaimBadgesUsecase struct {

@@ -1,4 +1,4 @@
-module github.com/robertokbr/bero-events
+module github.com/robertokbr/events-worker
 
 go 1.19
 

@@ -3,9 +3,9 @@ package badge_usecases
 import (
 	"sync"
 
-	"github.com/robertokbr/bero-events/src/domain/enums"
-	"github.com/robertokbr/bero-events/src/infra/database/repositories"
-	"github.com/robertokbr/bero-events/src/logger"
+	"github.com/robertokbr/events-worker/src/domain/enums"
+	"github.com/robertokbr/events-worker/src/infra/database/repositories"
+	"github.com/robertokbr/events-worker/src/logger"
 )
 
 type ClaimPopularAchievement struct {

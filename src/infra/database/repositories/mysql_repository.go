@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"github.com/robertokbr/bero-events/src/domain/models"
-	"github.com/robertokbr/bero-events/src/infra/database"
+	"github.com/robertokbr/events-worker/src/domain/models"
+	"github.com/robertokbr/events-worker/src/infra/database"
 )
 
 type MySqlRepository struct {

@@ -3,7 +3,7 @@ package usecases
 import (
 	"fmt"
 
-	"github.com/robertokbr/bero-events/src/domain/dtos"
+	"github.com/robertokbr/events-worker/src/domain/dtos"
 )
 
 func EventsWorker(jobs <-chan *dtos.EventDTO, jobsReturn chan JobsReturn, claimBadgesUsecase *ClaimBadgesUsecase, claimRewardsUsecase *ClaimRewardsUsecase, id int) {

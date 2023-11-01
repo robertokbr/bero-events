@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/robertokbr/bero-events/src/domain/interfaces"
-	"github.com/robertokbr/bero-events/src/domain/models"
-	"github.com/robertokbr/bero-events/src/infra/database/repositories"
-	"github.com/robertokbr/bero-events/src/logger"
+	"github.com/robertokbr/events-worker/src/domain/interfaces"
+	"github.com/robertokbr/events-worker/src/domain/models"
+	"github.com/robertokbr/events-worker/src/infra/database/repositories"
+	"github.com/robertokbr/events-worker/src/logger"
 )
 
 type ClaimRewardsUsecase struct {

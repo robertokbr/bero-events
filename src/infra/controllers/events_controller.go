@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/robertokbr/bero-events/src/domain/dtos"
+	"github.com/robertokbr/events-worker/src/domain/dtos"
 )
 
 type EventsController struct {
